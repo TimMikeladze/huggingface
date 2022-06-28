@@ -1,0 +1,73 @@
+{
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "huggingface",
+  "author": "Tim Mikeladze <tim.mikeladze@gmail.com>",
+  "description": "Typescript wrapper for the Hugging Face Inference API",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TimMikeladze/huggingface.git"
+  },
+  "keywords": [
+    "hugging face",
+    "hugging face typescript",
+    "huggingface",
+    "huggingface-inference-api",
+    "huggingface-inference-api-typescript"
+  ],
+  "module": "dist/huggingface.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/huggingface.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/huggingface.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "7.0.8",
+    "husky": "8.0.1",
+    "size-limit": "7.0.8",
+    "tsdx": "0.14.1",
+    "tslib": "2.4.0",
+    "typescript": "4.7.4"
+  },
+  "resolutions": {
+    "node-notifier": ">=8.0.1"
+  },
+  "dependencies": {
+    "isomorphic-unfetch": "3.1.0"
+  }
+}
