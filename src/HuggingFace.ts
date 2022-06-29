@@ -382,8 +382,8 @@ export class HuggingFace {
   private readonly apiKey: string;
   private readonly defaultOptions: Options;
 
-  constructor(apiKey?: string, defaultOptions: Options = {}) {
-    this.apiKey = apiKey || ` `;
+  constructor(apiKey: string, defaultOptions: Options = {}) {
+    this.apiKey = apiKey;
     this.defaultOptions = defaultOptions;
   }
 

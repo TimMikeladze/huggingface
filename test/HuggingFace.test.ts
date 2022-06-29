@@ -5,7 +5,7 @@ jest.setTimeout(60000);
 
 describe('HuggingFace', () => {
   // Individual tests can be ran without providing an api key, however running all tests without an api key will result in rate limiting error.
-  let hf = new HuggingFace(process.env.HF_API_KEY);
+  let hf = new HuggingFace(process.env.HF_API_KEY as string);
 
   it('throws error if model does not exist', () => {
     expect(

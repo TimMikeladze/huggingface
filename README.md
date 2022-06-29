@@ -10,7 +10,7 @@ yarn install huggingface
 
 ## Usage
 
-❗**Important note:** Using an API key is optional to get started, however you will be rate limited eventually. Join [Hugging Face](https://huggingface.co/join) and then visit [access tokens](https://huggingface.co/settings/tokens) to generate your API key.
+❗**Important note:** Using an API key is optional to get started (simply provide a random string), however you will be rate limited eventually. Join [Hugging Face](https://huggingface.co/join) and then visit [access tokens](https://huggingface.co/settings/tokens) to generate your API key.
 
 ### Basic examples
 
