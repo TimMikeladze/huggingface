@@ -478,7 +478,8 @@ export class HuggingFace {
   }
 
   /**
-   * This task is super useful to try out classification with zero code, you simply pass a sentence/paragraph and the possible labels for that sentence, and you get a result. Recommended model: facebook/bart-large-mnli.
+   * This task corresponds to any chatbot like structure. Models tend to have shorter max_length, so please check with caution when using a given model if you need long range dependency or not. Recommended model: microsoft/DialoGPT-large.
+   *
    */
   public async conversational(
     args: ConversationalArgs,
