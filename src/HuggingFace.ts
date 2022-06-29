@@ -13,6 +13,11 @@ export type Options = {
    * (Default: false) Boolean. If the model is not ready, wait for it instead of receiving 503. It limits the number of requests required to get your inference done. It is advised to only set this flag to true after receiving a 503 error as it will limit hanging in your application to known places.
    */
   wait_for_model?: boolean;
+
+  /**
+   * (Default: true) Boolean. If a request 503s and wait_for_model is set to false, the request will be retried with the same parameters but with wait_for_model set to true.
+   */
+  retry_on_error?: boolean;
 };
 
 export type Args = {
@@ -507,7 +512,11 @@ export class HuggingFace {
       }
     );
 
-    if (response.status === 503 && !mergedOptions.wait_for_model) {
+    if (
+      mergedOptions.retry_on_error !== false &&
+      response.status === 503 &&
+      !mergedOptions.wait_for_model
+    ) {
       return this.request(args, {
         ...mergedOptions,
         wait_for_model: true,
