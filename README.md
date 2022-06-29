@@ -94,6 +94,10 @@ export declare type Options = {
      * (Default: false) Boolean. If the model is not ready, wait for it instead of receiving 503. It limits the number of requests required to get your inference done. It is advised to only set this flag to true after receiving a 503 error as it will limit hanging in your application to known places.
      */
     wait_for_model?: boolean;
+    /**
+     * (Default: true) Boolean. If a request 503s and wait_for_model is set to false, the request will be retried with the same parameters but with wait_for_model set to true.
+     */
+    retry_on_error?: boolean;
 };
 export declare type Args = {
     model: string;
@@ -431,7 +435,7 @@ export declare type FeatureExtractionReturn = (number | number[])[];
 export declare class HuggingFace {
     private readonly apiKey;
     private readonly defaultOptions;
-    constructor(apiKey?: string, defaultOptions?: Options);
+    constructor(apiKey: string, defaultOptions?: Options);
     /**
      * Tries to fill in a hole with a missing word (token to be precise). That’s the base task for BERT models.
      */
@@ -469,7 +473,8 @@ export declare class HuggingFace {
      */
     zeroShotClassification(args: ZeroShotClassificationArgs, options?: Options): Promise<ZeroShotClassificationReturn>;
     /**
-     * This task is super useful to try out classification with zero code, you simply pass a sentence/paragraph and the possible labels for that sentence, and you get a result. Recommended model: facebook/bart-large-mnli.
+     * This task corresponds to any chatbot like structure. Models tend to have shorter max_length, so please check with caution when using a given model if you need long range dependency or not. Recommended model: microsoft/DialoGPT-large.
+     *
      */
     conversational(args: ConversationalArgs, options?: Options): Promise<ConversationalReturn>;
     /**
@@ -479,5 +484,4 @@ export declare class HuggingFace {
     request(args: Args, options?: Options): Promise<any>;
     private static toArray;
 }
-
 ```
