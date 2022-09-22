@@ -1,6 +1,12 @@
 import fetch from 'isomorphic-unfetch';
+import WebSocket from 'ws';
 
 export type Options = {
+  /**
+   * (Default: `true`) If enabled, array arguments will be sent over a WebSocket connection and the response will be streamed back.
+   */
+  use_streaming?: boolean;
+
   /**
    * (Default: false). Boolean to use GPU instead of CPU for inference (requires Startup plan at least).
    */
@@ -21,7 +27,14 @@ export type Options = {
 };
 
 export type Args = {
+  /**
+   * The name of the HuggingFace model to use.
+   */
   model: string;
+  /**
+   * When `use_streaming` option is enabled this id will be included in each response to identify the request.
+   */
+  id?: string;
 };
 
 export type FillMaskArgs = Args & {
@@ -391,9 +404,9 @@ export class HuggingFace {
    * Tries to fill in a hole with a missing word (token to be precise). That’s the base task for BERT models.
    */
   public async fillMask(
-    args: FillMaskArgs,
+    args: FillMaskArgs | FillMaskArgs[],
     options?: Options
-  ): Promise<FillMaskReturn> {
+  ): Promise<FillMaskReturn | FillMaskReturn[]> {
     return this.request(args, options);
   }
 
@@ -401,9 +414,9 @@ export class HuggingFace {
    * This task is well known to summarize longer text into shorter text. Be careful, some models have a maximum length of input. That means that the summary cannot handle full books for instance. Be careful when choosing your model.
    */
   public async summarization(
-    args: SummarizationArgs,
+    args: SummarizationArgs | SummarizationArgs[],
     options?: Options
-  ): Promise<SummarizationReturn> {
+  ): Promise<SummarizationReturn | SummarizationReturn[]> {
     return (await this.request(args, options))?.[0];
   }
 
@@ -411,9 +424,23 @@ export class HuggingFace {
    * Want to have a nice know-it-all bot that can answer any question?. Recommended model: deepset/roberta-base-squad2
    */
   public async questionAnswer(
+    args: QuestionAnswerArgs[],
+    options?: Options
+  ): Promise<QuestionAnswerReturn[]>;
+  /**
+   * Want to have a nice know-it-all bot that can answer any question?. Recommended model: deepset/roberta-base-squad2
+   */
+  public async questionAnswer(
     args: QuestionAnswerArgs,
     options?: Options
-  ): Promise<QuestionAnswerReturn> {
+  ): Promise<QuestionAnswerReturn>;
+  /**
+   * Want to have a nice know-it-all bot that can answer any question?. Recommended model: deepset/roberta-base-squad2
+   */
+  public async questionAnswer(
+    args: QuestionAnswerArgs | QuestionAnswerArgs[],
+    options?: Options
+  ): Promise<QuestionAnswerReturn | QuestionAnswerReturn[]> {
     return await this.request(args, options);
   }
 
@@ -421,9 +448,9 @@ export class HuggingFace {
    * Don’t know SQL? Don’t want to dive into a large spreadsheet? Ask questions in plain english! Recommended model: google/tapas-base-finetuned-wtq.
    */
   public async tableQuestionAnswer(
-    args: TableQuestionAnswerArgs,
+    args: TableQuestionAnswerArgs | TableQuestionAnswerArgs[],
     options?: Options
-  ): Promise<TableQuestionAnswerReturn> {
+  ): Promise<TableQuestionAnswerReturn | TableQuestionAnswerReturn[]> {
     return await this.request(args, options);
   }
 
@@ -431,9 +458,9 @@ export class HuggingFace {
    * Usually used for sentiment-analysis this will output the likelihood of classes of an input. Recommended model: distilbert-base-uncased-finetuned-sst-2-english
    */
   public async textClassification(
-    args: TextClassificationArgs,
+    args: TextClassificationArgs | TextClassificationArgs[],
     options?: Options
-  ): Promise<TextClassificationReturn> {
+  ): Promise<TextClassificationReturn | TextClassificationReturn[]> {
     return await this.request(args, options);
   }
 
@@ -441,9 +468,9 @@ export class HuggingFace {
    * Use to continue text from a prompt. This is a very generic task. Recommended model: gpt2 (it’s a simple model, but fun to play with).
    */
   public async textGeneration(
-    args: TextGenerationArgs,
+    args: TextGenerationArgs | TextGenerationArgs[],
     options?: Options
-  ): Promise<TextGenerationReturn> {
+  ): Promise<TextGenerationReturn | TextGenerationReturn[]> {
     return (await this.request(args, options))?.[0];
   }
 
@@ -451,9 +478,9 @@ export class HuggingFace {
    * Usually used for sentence parsing, either grammatical, or Named Entity Recognition (NER) to understand keywords contained within text. Recommended model: dbmdz/bert-large-cased-finetuned-conll03-english
    */
   public async tokenClassification(
-    args: TokenClassificationArgs,
+    args: TokenClassificationArgs | TokenClassificationArgs[],
     options?: Options
-  ): Promise<TokenClassificationReturn> {
+  ): Promise<TokenClassificationReturn | TokenClassificationReturn[]> {
     return HuggingFace.toArray(await this.request(args, options));
   }
 
@@ -461,9 +488,9 @@ export class HuggingFace {
    * This task is well known to translate text from one language to another. Recommended model: Helsinki-NLP/opus-mt-ru-en.
    */
   public async translation(
-    args: TranslationArgs,
+    args: TranslationArgs | TranslationArgs[],
     options?: Options
-  ): Promise<TranslationReturn> {
+  ): Promise<TranslationReturn | TranslationReturn[]> {
     return (await this.request(args, options))?.[0];
   }
 
@@ -471,9 +498,9 @@ export class HuggingFace {
    * This task is super useful to try out classification with zero code, you simply pass a sentence/paragraph and the possible labels for that sentence, and you get a result. Recommended model: facebook/bart-large-mnli.
    */
   public async zeroShotClassification(
-    args: ZeroShotClassificationArgs,
+    args: ZeroShotClassificationArgs | ZeroShotClassificationArgs[],
     options?: Options
-  ): Promise<ZeroShotClassificationReturn> {
+  ): Promise<ZeroShotClassificationReturn | ZeroShotClassificationReturn[]> {
     return HuggingFace.toArray(await this.request(args, options));
   }
 
@@ -482,9 +509,9 @@ export class HuggingFace {
    *
    */
   public async conversational(
-    args: ConversationalArgs,
+    args: ConversationalArgs | ConversationalArgs[],
     options?: Options
-  ): Promise<ConversationalReturn> {
+  ): Promise<ConversationalReturn | ConversationalReturn[]> {
     return await this.request(args, options);
   }
 
@@ -492,43 +519,111 @@ export class HuggingFace {
    * This task reads some text and outputs raw float values, that are usually consumed as part of a semantic database/semantic search.
    */
   public async featureExtraction(
-    args: FeatureExtractionArgs,
+    args: FeatureExtractionArgs | FeatureExtractionArgs[],
     options?: Options
-  ): Promise<FeatureExtractionReturn> {
+  ): Promise<FeatureExtractionReturn | FeatureExtractionReturn[]> {
     return await this.request(args, options);
   }
 
-  public async request(args: Args, options?: Options): Promise<any> {
+  public async request(
+    args: Args | Args[],
+    options?: Options
+  ): Promise<any | any[]> {
     const mergedOptions = { ...this.defaultOptions, ...options };
-    const { model, ...otherArgs } = args;
-    const response = await fetch(
-      `https://api-inference.huggingface.co/models/${model}`,
-      {
-        headers: { Authorization: `Bearer ${this.apiKey}` },
-        method: 'POST',
-        body: JSON.stringify({
-          ...otherArgs,
-          options: mergedOptions,
-        }),
+
+    if (Array.isArray(args) && options?.use_streaming !== false) {
+      const models = new Set(args.map(x => x.model));
+
+      if (models.size > 1) {
+        throw new Error(
+          'You can only send use one model per request when the `use_streaming` option is enabled. Please group your requests by model.'
+        );
       }
-    );
 
-    if (
-      mergedOptions.retry_on_error !== false &&
-      response.status === 503 &&
-      !mergedOptions.wait_for_model
-    ) {
-      return this.request(args, {
-        ...mergedOptions,
-        wait_for_model: true,
+      const model = args[0].model;
+
+      const uniqueIds = args
+        .map(x => x.id)
+        .filter(x => x !== undefined && x !== null && x?.trim() !== '');
+
+      if (uniqueIds.length !== new Set(uniqueIds).size) {
+        throw new Error('Duplicate ids found in args');
+      }
+
+      const ws = new WebSocket(
+        `wss://api-inference.huggingface.co/bulk/stream/cpu/${model}`
+      );
+
+      // @ts-ignore
+      const responses: any[] = [];
+
+      // @ts-ignore
+      return new Promise((resolve, reject) => {
+        ws.on('open', () => {
+          ws.send(`Bearer ${this.apiKey}`, { binary: true });
+
+          for (const arg of args) {
+            ws.send(JSON.stringify(arg), { binary: true });
+          }
+        });
+
+        ws.on('message', (data: any) => {
+          console.log(Buffer.from(data).toString());
+          console.log(data);
+          // const message = JSON.parse(data);
+          // if (message.type == 'results') {
+          //   responses.push(message);
+          //   if (responses.length === args.length) {
+          //     ws.close();
+          //     resolve(responses);
+          //   }
+          // }
+        });
+        ws.on('error', message => {
+          console.log(message);
+          reject(message);
+        });
       });
-    }
+    } else {
+      const httpRequest = async (args: Args) => {
+        const { model, ...otherArgs } = args;
 
-    const res = await response.json();
-    if (res.error) {
-      throw new Error(res.error);
+        const response = await fetch(
+          `https://api-inference.huggingface.co/models/${model}`,
+          {
+            headers: { Authorization: `Bearer ${this.apiKey}` },
+            method: 'POST',
+            body: JSON.stringify({
+              ...otherArgs,
+              options: mergedOptions,
+            }),
+          }
+        );
+
+        if (
+          mergedOptions.retry_on_error !== false &&
+          response.status === 503 &&
+          !mergedOptions.wait_for_model
+        ) {
+          return this.request(args, {
+            ...mergedOptions,
+            wait_for_model: true,
+          });
+        }
+
+        const res = await response.json();
+        if (res.error) {
+          throw new Error(res.error);
+        }
+        return res;
+      };
+
+      if (Array.isArray(args)) {
+        return Promise.all(args.map(x => httpRequest(x)));
+      }
+
+      return httpRequest(args);
     }
-    return res;
   }
 
   private static toArray(obj: any): any[] {

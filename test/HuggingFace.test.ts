@@ -7,7 +7,7 @@ describe('HuggingFace', () => {
   // Individual tests can be ran without providing an api key, however running all tests without an api key will result in rate limiting error.
   let hf = new HuggingFace(process.env.HF_API_KEY as string);
 
-  it('throws error if model does not exist', () => {
+  xit('throws error if model does not exist', () => {
     expect(
       hf.fillMask({
         model: 'this-model-does-not-exist-123',
@@ -17,7 +17,24 @@ describe('HuggingFace', () => {
       `Model this-model-does-not-exist-123 does not exist`
     );
   });
-  it('fillMask', async () => {
+  xit('throws error if multiple models are provided and use_streaming is true', () => {
+    expect(
+      hf.fillMask([
+        {
+          model: 'this-model-does-not-exist-123',
+          inputs: '[MASK] world!',
+        },
+        {
+          model: 'this-model-also-does-not-exist-123',
+          inputs: '[MASK] world!',
+        },
+      ])
+    ).rejects.toThrowError(
+      `Model this-model-does-not-exist-123 does not exist`
+    );
+  });
+
+  xit('fillMask', async () => {
     expect(
       await hf.fillMask({
         model: 'bert-base-uncased',
@@ -34,7 +51,7 @@ describe('HuggingFace', () => {
       ])
     );
   });
-  it('summarization', async () => {
+  xit('summarization', async () => {
     expect(
       await hf.summarization({
         model: 'facebook/bart-large-cnn',
@@ -49,7 +66,7 @@ describe('HuggingFace', () => {
         'The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building. Its base is square, measuring 125 metres (410 ft) on each side. During its construction, the Eiffel Tower surpassed the Washington Monument to become the tallest man-made structure in the world.',
     });
   });
-  it('questionAnswer', async () => {
+  xit('questionAnswer', async () => {
     expect(
       await hf.questionAnswer({
         model: 'deepset/roberta-base-squad2',
@@ -65,7 +82,7 @@ describe('HuggingFace', () => {
       end: expect.any(Number),
     });
   });
-  it('table question answer', async () => {
+  xit('table question answer', async () => {
     expect(
       await hf.tableQuestionAnswer({
         model: 'google/tapas-base-finetuned-wtq',
@@ -90,7 +107,7 @@ describe('HuggingFace', () => {
       aggregator: 'AVERAGE',
     });
   });
-  it('textClassification', async () => {
+  xit('textClassification', async () => {
     expect(
       await hf.textClassification({
         model: 'distilbert-base-uncased-finetuned-sst-2-english',
@@ -105,7 +122,7 @@ describe('HuggingFace', () => {
       ])
     );
   });
-  it('textGeneration', async () => {
+  xit('textGeneration', async () => {
     expect(
       await hf.textGeneration({
         model: 'gpt2',
@@ -116,7 +133,7 @@ describe('HuggingFace', () => {
         'The answer to the universe is not a binary number that is at a certain point defined in our theory of time, but an infinite number of infinitely long points and points for which each of these points has the given form in our equation. If the given',
     });
   });
-  it(`tokenClassification`, async () => {
+  xit('tokenClassification', async () => {
     expect(
       await hf.tokenClassification({
         model: 'dbmdz/bert-large-cased-finetuned-conll03-english',
@@ -134,7 +151,7 @@ describe('HuggingFace', () => {
       ])
     );
   });
-  it(`translation`, async () => {
+  xit('translation', async () => {
     expect(
       await hf.translation({
         model: 'Helsinki-NLP/opus-mt-ru-en',
@@ -144,7 +161,7 @@ describe('HuggingFace', () => {
       translation_text: 'My name is Wolfgang and I live in Berlin.',
     });
   });
-  it(`zeroShotClassification`, async () => {
+  xit('zeroShotClassification', async () => {
     expect(
       await hf.zeroShotClassification({
         model: 'facebook/bart-large-mnli',
@@ -164,7 +181,7 @@ describe('HuggingFace', () => {
       ])
     );
   });
-  it(`conversational`, async () => {
+  xit('conversational', async () => {
     expect(
       await hf.conversational({
         model: 'microsoft/DialoGPT-large',
@@ -191,7 +208,7 @@ describe('HuggingFace', () => {
       ],
     });
   });
-  it(`featureExtraction`, async () => {
+  xit('featureExtraction', async () => {
     expect(
       await hf.featureExtraction({
         model: 'sentence-transformers/paraphrase-xlm-r-multilingual-v1',
@@ -205,5 +222,70 @@ describe('HuggingFace', () => {
         },
       })
     ).toEqual([0.6623499393463135, 0.9382339715957642, 0.22963346540927887]);
+  });
+
+  xit('use http for array input when use_streaming is false', async () => {
+    const res = await hf.questionAnswer(
+      [
+        {
+          model: 'deepset/roberta-base-squad2',
+          inputs: {
+            question: 'What is the capital of France?',
+            context: 'The capital of France is Paris.',
+          },
+        },
+        {
+          model: 'deepset/roberta-base-squad2',
+          inputs: {
+            question: 'What is the capital of England?',
+            context: 'The capital of England is London.',
+          },
+        },
+      ],
+      {
+        use_streaming: false,
+      }
+    );
+
+    expect(res).toHaveLength(2);
+
+    expect(res[0]).toEqual({
+      answer: 'Paris',
+      score: expect.any(Number),
+      start: expect.any(Number),
+      end: expect.any(Number),
+    });
+    expect(res[1]).toEqual({
+      answer: 'London',
+      score: expect.any(Number),
+      start: expect.any(Number),
+      end: expect.any(Number),
+    });
+  });
+
+  it('use websockets for array input when use_streaming is true', async () => {
+    const res = await hf.questionAnswer(
+      [
+        {
+          model: 'deepset/roberta-base-squad2',
+          inputs: {
+            question: 'What is the capital of France?',
+            context: 'The capital of France is Paris.',
+          },
+        },
+        {
+          model: 'deepset/roberta-base-squad2',
+          inputs: {
+            question: 'What is the capital of England?',
+            context: 'The capital of England is London.',
+          },
+        },
+      ],
+      {
+        use_streaming: true,
+      }
+    );
+
+    console.log(res);
   });
 });

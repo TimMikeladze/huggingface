@@ -58,6 +58,7 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "7.0.8",
+    "@types/ws": "8.5.3",
     "husky": "8.0.1",
     "size-limit": "7.0.8",
     "tsdx": "0.14.1",
@@ -68,6 +69,8 @@
     "node-notifier": ">=8.0.1"
   },
   "dependencies": {
-    "isomorphic-unfetch": "3.1.0"
+    "isomorphic-unfetch": "3.1.0",
+    "isomorphic-ws": "5.0.0",
+    "ws": "8.8.1"
   }
 }
