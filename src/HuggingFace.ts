@@ -434,7 +434,7 @@ export class HuggingFace {
     args: TextClassificationArgs,
     options?: Options
   ): Promise<TextClassificationReturn> {
-    return await this.request(args, options);
+    return (await this.request(args, options))?.[0];
   }
 
   /**

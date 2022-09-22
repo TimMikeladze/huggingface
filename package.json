@@ -17,7 +17,8 @@
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "release": "yarn release-it"
   },
   "peerDependencies": {},
   "husky": {
@@ -56,9 +57,21 @@
       "limit": "10 KB"
     }
   ],
+  "release-it": {
+    "git": {
+      "commitMessage": "chore(release): v${version}"
+    },
+    "github": {
+      "release": true
+    },
+    "npm": {
+      "publish": false
+    }
+  },
   "devDependencies": {
     "@size-limit/preset-small-lib": "7.0.8",
     "husky": "8.0.1",
+    "release-it": "15.4.2",
     "size-limit": "7.0.8",
     "tsdx": "0.14.1",
     "tslib": "2.4.0",
