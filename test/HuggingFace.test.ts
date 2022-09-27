@@ -207,6 +207,32 @@ describe('HuggingFace', () => {
       })
     ).toEqual([expect.any(Number), expect.any(Number), expect.any(Number)]);
   });
+  it('automaticSpeechRecognition', async () => {
+    expect(
+      await hf.automaticSpeechRecognition({
+        model: 'facebook/wav2vec2-large-960h-lv60-self',
+        data: readFileSync('test/sample1.flac'),
+      })
+    ).toMatchObject({
+      text:
+        "GOING ALONG SLUSHY COUNTRY ROADS AND SPEAKING TO DAMP AUDIENCES IN DRAUGHTY SCHOOLROOMS DAY AFTER DAY FOR A FORTNIGHT HE'LL HAVE TO PUT IN AN APPEARANCE AT SOME PLACE OF WORSHIP ON SUNDAY MORNING AND HE CAN COME TO US IMMEDIATELY AFTERWARDS",
+    });
+  });
+  it('audioClassification', async () => {
+    expect(
+      await hf.audioClassification({
+        model: 'superb/hubert-large-superb-er',
+        data: readFileSync('test/sample1.flac'),
+      })
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          score: expect.any(Number),
+          label: expect.any(String),
+        }),
+      ])
+    );
+  });
   it('imageClassification', async () => {
     expect(
       await hf.imageClassification({

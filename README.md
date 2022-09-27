@@ -109,6 +109,18 @@ await hf.featureExtraction({
     },
 })
 
+// Audio
+
+await hf.automaticSpeechRecognition({
+    model: 'facebook/wav2vec2-large-960h-lv60-self',
+    data: readFileSync('test/sample1.flac'),
+})
+
+await hf.audioClassification({
+    model: 'superb/hubert-large-superb-er',
+    data: readFileSync('test/sample1.flac'),
+})
+
 // Computer Vision
 
 await hf.imageClassification({
@@ -148,8 +160,8 @@ await hf.imageClassification({
 
 ### Audio
 
-- [ ] Automatic speech recognition
-- [ ] Audio classification
+- [x] Automatic speech recognition
+- [x] Audio classification
 
 ### Computer Vision
 
@@ -216,6 +228,16 @@ export declare class HuggingFace {
      * This task reads some text and outputs raw float values, that are usually consumed as part of a semantic database/semantic search.
      */
     featureExtraction(args: FeatureExtractionArgs, options?: Options): Promise<FeatureExtractionReturn>;
+    /**
+     * This task reads some audio input and outputs the said words within the audio files.
+     * Recommended model (english language): facebook/wav2vec2-large-960h-lv60-self
+     */
+    automaticSpeechRecognition(args: AutomaticSpeechRecognitionArgs, options?: Options): Promise<AutomaticSpeechRecognitionReturn>;
+    /**
+     * This task reads some audio input and outputs the likelihood of classes.
+     * Recommended model:  superb/hubert-large-superb-er
+     */
+    audioClassification(args: AudioClassificationArgs, options?: Options): Promise<AudioClassificationReturn>;
     /**
      * This task reads some image input and outputs the likelihood of classes.
      * Recommended model: google/vit-base-patch16-224
@@ -654,4 +676,33 @@ export declare type ImageSegmentationReturnValue = {
     mask: string;
 };
 export declare type ImageSegmentationReturn = ImageSegmentationReturnValue[];
+export declare type AutomaticSpeechRecognitionArgs = Args & {
+    /**
+     * Binary audio data
+     */
+    data: any;
+};
+export declare type AutomaticSpeechRecognitionReturn = {
+    /**
+     * The text that was recognized from the audio
+     */
+    text: string;
+};
+export declare type AudioClassificationArgs = Args & {
+    /**
+     * Binary audio data
+     */
+    data: any;
+};
+export declare type AudioClassificationReturnValue = {
+    /**
+     * The label for the class (model specific)
+     */
+    label: string;
+    /**
+     * A float that represents how likely it is that the audio file belongs to this class.
+     */
+    score: number;
+};
+export declare type AudioClassificationReturn = AudioClassificationReturnValue[];
 ```

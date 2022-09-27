@@ -452,6 +452,41 @@ export type ImageSegmentationReturnValue = {
 
 export type ImageSegmentationReturn = ImageSegmentationReturnValue[];
 
+export type AutomaticSpeechRecognitionArgs = Args & {
+  /**
+   * Binary audio data
+   */
+  data: any;
+};
+
+export type AutomaticSpeechRecognitionReturn = {
+  /**
+   * The text that was recognized from the audio
+   */
+  text: string;
+};
+
+export type AudioClassificationArgs = Args & {
+  /**
+   * Binary audio data
+   */
+  data: any;
+};
+
+export type AudioClassificationReturnValue = {
+  /**
+   * The label for the class (model specific)
+   */
+  label: string;
+
+  /**
+   * A float that represents how likely it is that the audio file belongs to this class.
+   */
+  score: number;
+};
+
+export type AudioClassificationReturn = AudioClassificationReturnValue[];
+
 export class HuggingFace {
   private readonly apiKey: string;
   private readonly defaultOptions: Options;
@@ -570,6 +605,34 @@ export class HuggingFace {
     options?: Options
   ): Promise<FeatureExtractionReturn> {
     return await this.request(args, options);
+  }
+
+  /**
+   * This task reads some audio input and outputs the said words within the audio files.
+   * Recommended model (english language): facebook/wav2vec2-large-960h-lv60-self
+   */
+  public async automaticSpeechRecognition(
+    args: AutomaticSpeechRecognitionArgs,
+    options?: Options
+  ): Promise<AutomaticSpeechRecognitionReturn> {
+    return await this.request(args, {
+      ...options,
+      binary: true,
+    });
+  }
+
+  /**
+   * This task reads some audio input and outputs the likelihood of classes.
+   * Recommended model:  superb/hubert-large-superb-er
+   */
+  public async audioClassification(
+    args: AudioClassificationArgs,
+    options?: Options
+  ): Promise<AudioClassificationReturn> {
+    return await this.request(args, {
+      ...options,
+      binary: true,
+    });
   }
 
   /**
