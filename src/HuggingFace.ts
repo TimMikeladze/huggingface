@@ -378,6 +378,80 @@ export type FeatureExtractionArgs = Args & {
  */
 export type FeatureExtractionReturn = (number | number[])[];
 
+export type ImageClassificationArgs = Args & {
+  /**
+   * Binary image data
+   */
+  data: any;
+};
+
+export type ImageClassificationReturnValue = {
+  /**
+   * The label for the class (model specific)
+   */
+  score: number;
+  /**
+   * A float that represents how likely it is that the image file belongs to this class.
+   */
+  label: string;
+};
+
+export type ImageClassificationReturn = ImageClassificationReturnValue[];
+
+export type ObjectDetectionArgs = Args & {
+  /**
+   * Binary image data
+   */
+  data: any;
+};
+
+export type ObjectDetectionReturnValue = {
+  /**
+   * A float that represents how likely it is that the detected object belongs to the given class.
+   */
+  score: number;
+  /**
+   * The label for the class (model specific) of a detected object.
+   */
+  label: string;
+
+  /**
+   * A dict (with keys [xmin,ymin,xmax,ymax]) representing the bounding box of a detected object.
+   */
+  box: {
+    xmin: number;
+    ymin: number;
+    xmax: number;
+    ymax: number;
+  };
+};
+
+export type ObjectDetectionReturn = ObjectDetectionReturnValue[];
+
+export type ImageSegmentationArgs = Args & {
+  /**
+   * Binary image data
+   */
+  data: any;
+};
+
+export type ImageSegmentationReturnValue = {
+  /**
+   * A float that represents how likely it is that the detected object belongs to the given class.
+   */
+  score: number;
+  /**
+   * The label for the class (model specific) of a segment.
+   */
+  label: string;
+  /**
+   * A str (base64 str of a single channel black-and-white img) representing the mask of a segment.
+   */
+  mask: string;
+};
+
+export type ImageSegmentationReturn = ImageSegmentationReturnValue[];
+
 export class HuggingFace {
   private readonly apiKey: string;
   private readonly defaultOptions: Options;
@@ -498,7 +572,54 @@ export class HuggingFace {
     return await this.request(args, options);
   }
 
-  public async request(args: Args, options?: Options): Promise<any> {
+  /**
+   * This task reads some image input and outputs the likelihood of classes.
+   * Recommended model: google/vit-base-patch16-224
+   */
+  public async imageClassification(
+    args: ImageClassificationArgs,
+    options?: Options
+  ): Promise<ImageClassificationReturn> {
+    return await this.request(args, {
+      ...options,
+      binary: true,
+    });
+  }
+
+  /**
+   * This task reads some image input and outputs the likelihood of classes & bounding boxes of detected objects.
+   * Recommended model: facebook/detr-resnet-50
+   */
+  public async objectDetection(
+    args: ObjectDetectionArgs,
+    options?: Options
+  ): Promise<ObjectDetectionReturn> {
+    return await this.request(args, {
+      ...options,
+      binary: true,
+    });
+  }
+
+  /**
+   * This task reads some image input and outputs the likelihood of classes & bounding boxes of detected objects.
+   * Recommended model: facebook/detr-resnet-50-panoptic
+   */
+  public async imageSegmentation(
+    args: ImageSegmentationArgs,
+    options?: Options
+  ): Promise<ImageSegmentationReturn> {
+    return await this.request(args, {
+      ...options,
+      binary: true,
+    });
+  }
+
+  public async request(
+    args: Args & { data?: any },
+    options?: Options & {
+      binary?: boolean;
+    }
+  ): Promise<any> {
     const mergedOptions = { ...this.defaultOptions, ...options };
     const { model, ...otherArgs } = args;
     const response = await fetch(
@@ -506,10 +627,12 @@ export class HuggingFace {
       {
         headers: { Authorization: `Bearer ${this.apiKey}` },
         method: 'POST',
-        body: JSON.stringify({
-          ...otherArgs,
-          options: mergedOptions,
-        }),
+        body: options?.binary
+          ? args.data
+          : JSON.stringify({
+              ...otherArgs,
+              options: mergedOptions,
+            }),
       }
     );
 

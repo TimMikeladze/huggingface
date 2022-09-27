@@ -1,6 +1,8 @@
 // 1 minute
 
 import HuggingFace from '../src';
+import { readFileSync } from 'fs';
+
 jest.setTimeout(60000);
 
 describe('HuggingFace', () => {
@@ -204,5 +206,57 @@ describe('HuggingFace', () => {
         },
       })
     ).toEqual([expect.any(Number), expect.any(Number), expect.any(Number)]);
+  });
+  it('imageClassification', async () => {
+    expect(
+      await hf.imageClassification({
+        data: readFileSync('test/cheetah.png'),
+        model: 'google/vit-base-patch16-224',
+      })
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          score: expect.any(Number),
+          label: expect.any(String),
+        }),
+      ])
+    );
+  });
+  it('objectDetection', async () => {
+    expect(
+      await hf.imageClassification({
+        data: readFileSync('test/cats.png'),
+        model: 'facebook/detr-resnet-50',
+      })
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          score: expect.any(Number),
+          label: expect.any(String),
+          box: expect.objectContaining({
+            xmin: expect.any(Number),
+            ymin: expect.any(Number),
+            xmax: expect.any(Number),
+            ymax: expect.any(Number),
+          }),
+        }),
+      ])
+    );
+  });
+  it('imageSegmentation', async () => {
+    expect(
+      await hf.imageClassification({
+        data: readFileSync('test/cats.png'),
+        model: 'facebook/detr-resnet-50-panoptic',
+      })
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          score: expect.any(Number),
+          label: expect.any(String),
+          mask: expect.any(String),
+        }),
+      ])
+    );
   });
 });
