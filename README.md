@@ -1,6 +1,6 @@
-# 🤗 Hugging Face Inference API 
+# 🤗 Hugging Face Inference API
 
-A Typescript powered wrapper for the Hugging Face Inference API. Learn more about the Inference API at [Hugging Face](https://huggingface.co/docs/api-inference/index). 
+A Typescript powered wrapper for the Hugging Face Inference API. Learn more about the Inference API at [Hugging Face](https://huggingface.co/docs/api-inference/index).
 
 ## Install
 
@@ -17,7 +17,9 @@ yarn install huggingface
 ```typescript
 import HuggingFace from 'huggingface'
 
-const hf = new HuggingFace("your api key") 
+const hf = new HuggingFace("your api key")
+
+// Natural Language
 
 await hf.fillMask({
     model: 'bert-base-uncased',
@@ -40,6 +42,90 @@ await hf.questionAnswer({
         context: 'The capital of France is Paris.',
     },
 })
+
+await hf.tableQuestionAnswer({
+    model: 'google/tapas-base-finetuned-wtq',
+    inputs: {
+        query: 'How many stars does the transformers repository have?',
+        table: {
+            Repository: ['Transformers', 'Datasets', 'Tokenizers'],
+            Stars: ['36542', '4512', '3934'],
+            Contributors: ['651', '77', '34'],
+            'Programming language': [
+                'Python',
+                'Python',
+                'Rust, Python and NodeJS',
+            ],
+        },
+    },
+})
+
+await hf.textClassification({
+    model: 'distilbert-base-uncased-finetuned-sst-2-english',
+    inputs: 'I like you. I love you.',
+})
+
+await hf.textGeneration({
+    model: 'gpt2',
+    inputs: 'The answer to the universe is',
+})
+
+await hf.tokenClassification({
+    model: 'dbmdz/bert-large-cased-finetuned-conll03-english',
+    inputs: 'My name is Sarah Jessica Parker but you can call me Jessica',
+})
+
+await hf.translation({
+    model: 'Helsinki-NLP/opus-mt-ru-en',
+    inputs: 'Меня зовут Вольфганг и я живу в Берлине',
+})
+
+await hf.zeroShotClassification({
+    model: 'facebook/bart-large-mnli',
+    inputs: [
+        'Hi, I recently bought a device from your company but it is not working as advertised and I would like to get reimbursed!',
+    ],
+    parameters: { candidate_labels: ['refund', 'legal', 'faq'] },
+})
+
+await hf.conversational({
+    model: 'microsoft/DialoGPT-large',
+    inputs: {
+        past_user_inputs: ['Which movie is the best ?'],
+        generated_responses: ['It is Die Hard for sure.'],
+        text: 'Can you explain why ?',
+    },
+})
+
+await hf.featureExtraction({
+    model: 'sentence-transformers/paraphrase-xlm-r-multilingual-v1',
+    inputs: {
+        source_sentence: 'That is a happy person',
+        sentences: [
+            'That is a happy dog',
+            'That is a very happy person',
+            'Today is a sunny day',
+        ],
+    },
+})
+
+// Computer Vision
+
+await hf.imageClassification({
+    data: readFileSync('test/cheetah.png'),
+    model: 'google/vit-base-patch16-224',
+})
+
+await hf.imageClassification({
+    data: readFileSync('test/cats.png'),
+    model: 'facebook/detr-resnet-50',
+})
+
+await hf.imageClassification({
+    data: readFileSync('test/cats.png'),
+    model: 'facebook/detr-resnet-50-panoptic',
+})
+
 ```
 
 ## Supported APIs
@@ -58,7 +144,7 @@ await hf.questionAnswer({
 - [x] Translation
 - [x] Zero-shot classification
 - [x] Conversational
-- [x] Feature extraction 
+- [x] Feature extraction
 
 ### Audio
 
@@ -67,9 +153,9 @@ await hf.questionAnswer({
 
 ### Computer Vision
 
-- [ ] Image classification
-- [ ] Object detection
-- [ ] Image segmentation
+- [x] Image classification
+- [x] Object detection
+- [x] Image segmentation
 
 
 ## Running tests
@@ -81,6 +167,78 @@ HF_API_KEY="your api key" yarn test
 ## Options
 
 ```typescript
+export declare class HuggingFace {
+    private readonly apiKey;
+    private readonly defaultOptions;
+    constructor(apiKey: string, defaultOptions?: Options);
+    /**
+     * Tries to fill in a hole with a missing word (token to be precise). That’s the base task for BERT models.
+     */
+    fillMask(args: FillMaskArgs, options?: Options): Promise<FillMaskReturn>;
+    /**
+     * This task is well known to summarize longer text into shorter text. Be careful, some models have a maximum length of input. That means that the summary cannot handle full books for instance. Be careful when choosing your model.
+     */
+    summarization(args: SummarizationArgs, options?: Options): Promise<SummarizationReturn>;
+    /**
+     * Want to have a nice know-it-all bot that can answer any question?. Recommended model: deepset/roberta-base-squad2
+     */
+    questionAnswer(args: QuestionAnswerArgs, options?: Options): Promise<QuestionAnswerReturn>;
+    /**
+     * Don’t know SQL? Don’t want to dive into a large spreadsheet? Ask questions in plain english! Recommended model: google/tapas-base-finetuned-wtq.
+     */
+    tableQuestionAnswer(args: TableQuestionAnswerArgs, options?: Options): Promise<TableQuestionAnswerReturn>;
+    /**
+     * Usually used for sentiment-analysis this will output the likelihood of classes of an input. Recommended model: distilbert-base-uncased-finetuned-sst-2-english
+     */
+    textClassification(args: TextClassificationArgs, options?: Options): Promise<TextClassificationReturn>;
+    /**
+     * Use to continue text from a prompt. This is a very generic task. Recommended model: gpt2 (it’s a simple model, but fun to play with).
+     */
+    textGeneration(args: TextGenerationArgs, options?: Options): Promise<TextGenerationReturn>;
+    /**
+     * Usually used for sentence parsing, either grammatical, or Named Entity Recognition (NER) to understand keywords contained within text. Recommended model: dbmdz/bert-large-cased-finetuned-conll03-english
+     */
+    tokenClassification(args: TokenClassificationArgs, options?: Options): Promise<TokenClassificationReturn>;
+    /**
+     * This task is well known to translate text from one language to another. Recommended model: Helsinki-NLP/opus-mt-ru-en.
+     */
+    translation(args: TranslationArgs, options?: Options): Promise<TranslationReturn>;
+    /**
+     * This task is super useful to try out classification with zero code, you simply pass a sentence/paragraph and the possible labels for that sentence, and you get a result. Recommended model: facebook/bart-large-mnli.
+     */
+    zeroShotClassification(args: ZeroShotClassificationArgs, options?: Options): Promise<ZeroShotClassificationReturn>;
+    /**
+     * This task corresponds to any chatbot like structure. Models tend to have shorter max_length, so please check with caution when using a given model if you need long range dependency or not. Recommended model: microsoft/DialoGPT-large.
+     *
+     */
+    conversational(args: ConversationalArgs, options?: Options): Promise<ConversationalReturn>;
+    /**
+     * This task reads some text and outputs raw float values, that are usually consumed as part of a semantic database/semantic search.
+     */
+    featureExtraction(args: FeatureExtractionArgs, options?: Options): Promise<FeatureExtractionReturn>;
+    /**
+     * This task reads some image input and outputs the likelihood of classes.
+     * Recommended model: google/vit-base-patch16-224
+     */
+    imageClassification(args: ImageClassificationArgs, options?: Options): Promise<ImageClassificationReturn>;
+    /**
+     * This task reads some image input and outputs the likelihood of classes & bounding boxes of detected objects.
+     * Recommended model: facebook/detr-resnet-50
+     */
+    objectDetection(args: ObjectDetectionArgs, options?: Options): Promise<ObjectDetectionReturn>;
+    /**
+     * This task reads some image input and outputs the likelihood of classes & bounding boxes of detected objects.
+     * Recommended model: facebook/detr-resnet-50-panoptic
+     */
+    imageSegmentation(args: ImageSegmentationArgs, options?: Options): Promise<ImageSegmentationReturn>;
+    request(args: Args & {
+        data?: any;
+    }, options?: Options & {
+        binary?: boolean;
+    }): Promise<any>;
+    private static toArray;
+}
+
 export declare type Options = {
     /**
      * (Default: false). Boolean to use GPU instead of CPU for inference (requires Startup plan at least).
@@ -432,56 +590,68 @@ export declare type FeatureExtractionArgs = Args & {
  * Returned values are a list of floats, or a list of list of floats (depending on if you sent a string or a list of string, and if the automatic reduction, usually mean_pooling for instance was applied for you or not. This should be explained on the model's README.
  */
 export declare type FeatureExtractionReturn = (number | number[])[];
-export declare class HuggingFace {
-    private readonly apiKey;
-    private readonly defaultOptions;
-    constructor(apiKey: string, defaultOptions?: Options);
+export declare type ImageClassificationArgs = Args & {
     /**
-     * Tries to fill in a hole with a missing word (token to be precise). That’s the base task for BERT models.
+     * Binary image data
      */
-    fillMask(args: FillMaskArgs, options?: Options): Promise<FillMaskReturn>;
+    data: any;
+};
+export declare type ImageClassificationReturnValue = {
     /**
-     * This task is well known to summarize longer text into shorter text. Be careful, some models have a maximum length of input. That means that the summary cannot handle full books for instance. Be careful when choosing your model.
+     * The label for the class (model specific)
      */
-    summarization(args: SummarizationArgs, options?: Options): Promise<SummarizationReturn>;
+    score: number;
     /**
-     * Want to have a nice know-it-all bot that can answer any question?. Recommended model: deepset/roberta-base-squad2
+     * A float that represents how likely it is that the image file belongs to this class.
      */
-    questionAnswer(args: QuestionAnswerArgs, options?: Options): Promise<QuestionAnswerReturn>;
+    label: string;
+};
+export declare type ImageClassificationReturn = ImageClassificationReturnValue[];
+export declare type ObjectDetectionArgs = Args & {
     /**
-     * Don’t know SQL? Don’t want to dive into a large spreadsheet? Ask questions in plain english! Recommended model: google/tapas-base-finetuned-wtq.
+     * Binary image data
      */
-    tableQuestionAnswer(args: TableQuestionAnswerArgs, options?: Options): Promise<TableQuestionAnswerReturn>;
+    data: any;
+};
+export declare type ObjectDetectionReturnValue = {
     /**
-     * Usually used for sentiment-analysis this will output the likelihood of classes of an input. Recommended model: distilbert-base-uncased-finetuned-sst-2-english
+     * A float that represents how likely it is that the detected object belongs to the given class.
      */
-    textClassification(args: TextClassificationArgs, options?: Options): Promise<TextClassificationReturn>;
+    score: number;
     /**
-     * Use to continue text from a prompt. This is a very generic task. Recommended model: gpt2 (it’s a simple model, but fun to play with).
+     * The label for the class (model specific) of a detected object.
      */
-    textGeneration(args: TextGenerationArgs, options?: Options): Promise<TextGenerationReturn>;
+    label: string;
     /**
-     * Usually used for sentence parsing, either grammatical, or Named Entity Recognition (NER) to understand keywords contained within text. Recommended model: dbmdz/bert-large-cased-finetuned-conll03-english
+     * A dict (with keys [xmin,ymin,xmax,ymax]) representing the bounding box of a detected object.
      */
-    tokenClassification(args: TokenClassificationArgs, options?: Options): Promise<TokenClassificationReturn>;
+    box: {
+        xmin: number;
+        ymin: number;
+        xmax: number;
+        ymax: number;
+    };
+};
+export declare type ObjectDetectionReturn = ObjectDetectionReturnValue[];
+export declare type ImageSegmentationArgs = Args & {
     /**
-     * This task is well known to translate text from one language to another. Recommended model: Helsinki-NLP/opus-mt-ru-en.
+     * Binary image data
      */
-    translation(args: TranslationArgs, options?: Options): Promise<TranslationReturn>;
+    data: any;
+};
+export declare type ImageSegmentationReturnValue = {
     /**
-     * This task is super useful to try out classification with zero code, you simply pass a sentence/paragraph and the possible labels for that sentence, and you get a result. Recommended model: facebook/bart-large-mnli.
+     * A float that represents how likely it is that the detected object belongs to the given class.
      */
-    zeroShotClassification(args: ZeroShotClassificationArgs, options?: Options): Promise<ZeroShotClassificationReturn>;
+    score: number;
     /**
-     * This task corresponds to any chatbot like structure. Models tend to have shorter max_length, so please check with caution when using a given model if you need long range dependency or not. Recommended model: microsoft/DialoGPT-large.
-     *
+     * The label for the class (model specific) of a segment.
      */
-    conversational(args: ConversationalArgs, options?: Options): Promise<ConversationalReturn>;
+    label: string;
     /**
-     * This task reads some text and outputs raw float values, that are usually consumed as part of a semantic database/semantic search.
+     * A str (base64 str of a single channel black-and-white img) representing the mask of a segment.
      */
-    featureExtraction(args: FeatureExtractionArgs, options?: Options): Promise<FeatureExtractionReturn>;
-    request(args: Args, options?: Options): Promise<any>;
-    private static toArray;
-}
+    mask: string;
+};
+export declare type ImageSegmentationReturn = ImageSegmentationReturnValue[];
 ```
