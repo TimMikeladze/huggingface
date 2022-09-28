@@ -128,12 +128,12 @@ await hf.imageClassification({
     model: 'google/vit-base-patch16-224',
 })
 
-await hf.imageClassification({
+await hf.objectDetection({
     data: readFileSync('test/cats.png'),
     model: 'facebook/detr-resnet-50',
 })
 
-await hf.imageClassification({
+await hf.imageSegmentation({
     data: readFileSync('test/cats.png'),
     model: 'facebook/detr-resnet-50-panoptic',
 })
