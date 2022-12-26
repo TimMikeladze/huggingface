@@ -6,9 +6,9 @@ A Typescript powered wrapper for the Hugging Face Inference API. Learn more abou
 
 ```console
 npm install huggingface
-# or
+
 yarn add huggingface
-# or
+
 pnpm add huggingface 
 ```
 
