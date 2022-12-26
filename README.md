@@ -5,7 +5,11 @@ A Typescript powered wrapper for the Hugging Face Inference API. Learn more abou
 ## Install
 
 ```console
-yarn install huggingface
+npm install huggingface
+# or
+yarn add huggingface
+# or
+pnpm add huggingface 
 ```
 
 ## Usage
