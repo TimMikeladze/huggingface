@@ -1,6 +1,6 @@
 {
   "name": "huggingface",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "license": "MIT",
   "author": "Tim Mikeladze <tim.mikeladze@gmail.com>",
   "description": "Typescript wrapper for the Hugging Face Inference API",
