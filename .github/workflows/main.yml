@@ -1,30 +1,37 @@
-name: CI
-on: [push]
-jobs:
-  build:
-    name: Build, lint, and test on Node
+name: Main CI workflow
 
+on: [push]
+
+jobs:
+  run-ci:
+    name: Run CI
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HF_API_KEY: ${{ secrets.HF_API_KEY }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Use Node
-        uses: actions/setup-node@v1
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
-          node-version: 14
+          fetch-depth: 0
 
-      - name: Install deps and build (with cache)
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies (with cache)
         uses: bahmutov/npm-install@v1
 
-      - name: Lint
+      - name: Check types
+        run: yarn type-check
+
+      - name: Check linting
         run: yarn lint
 
       - name: Test
-        env:
-          HF_API_KEY: ${{ secrets.HF_API_KEY }}
-        run: yarn test --ci --coverage --maxWorkers=2
+        run: yarn test:ci
 
       - name: Build
         run: yarn build

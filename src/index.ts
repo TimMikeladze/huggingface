@@ -1,3 +1,3 @@
-import { HuggingFace } from './HuggingFace';
-export * from './HuggingFace';
-export default HuggingFace;
+import { HuggingFace } from './HuggingFace'
+export * from './HuggingFace'
+export default HuggingFace
