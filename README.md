@@ -1,3 +1,5 @@
+# ❗ IMPORTANT: This package has been merged into [Huggingface.js](https://github.com/huggingface/huggingface.js). Read the latest docs [here](https://github.com/huggingface/huggingface.js/blob/main/packages/inference/README.md).
+
 # 🤗 Hugging Face Inference API
 
 A Typescript powered wrapper for the Hugging Face Inference API. Learn more about the Inference API at [Hugging Face](https://huggingface.co/docs/api-inference/index).
